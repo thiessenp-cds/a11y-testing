@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Live regions</title>
+    <style>
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Live regions</h1>
+    </header>
+    <main>
+      <div>
+        <p>Want to reduce verbosity? Try a separate div to announce all updates in, similar to a serial "channel". (turn on screen reader to hear updates)</p>
+        <div>
+          <button id="itemListAdd">Add item</button> 
+          <button id="itemListRemove">Remove item</button>
+        </div>
+        <ul id="itemsList"></ul>
+        <!--Note: 
+          atomic=false stops entire container being announced -vs- just the update
+          aria-relevant="text additions" is the default (want this)
+        -->
+        <div id="itemsListLiveRegion" className="sr-only" aria-live="polite" aria-atomic="false"></div>
+      </div>
+    </main>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const itemListAdd = document.querySelector("#itemListAdd");
+        const itemListRemove = document.querySelector("#itemListRemove");
+        const itemsList = document.querySelector("#itemsList");
+        const itemsListLiveRegion = document.querySelector("#itemsListLiveRegion");
+
+        itemListAdd.addEventListener("click", () => {
+          addItem("Item added");
+        });
+
+        itemListRemove.addEventListener("click", () => {
+          removeItem("Item removed");
+        });
+
+        function announceLiveRegion(text) {
+          // Note: "prepping" live region by emptying. Helps with timing edge cases and without
+          // this duplicate text updates will not be announced.
+          itemsListLiveRegion.textContent = "";
+          itemsListLiveRegion.textContent = `${text} (sr only announced)`;
+        }
+
+        function addItem(text) {
+          const li = document.createElement("li");
+          li.textContent = text;
+          const img = document.createElement("img");
+          img.src = "nope";
+          img.alt = "a lengthy description that would be way to verbose to announce for each adding or removal";
+          li.append(img);
+          // Note: append is more robust e.g. add list or text -vs- .appendChild(li);
+          itemsList.append(li);
+          announceLiveRegion(text);
+        }
+        
+        function removeItem(text) {
+          const liRemove = document.querySelector("#itemsList li:last-child");
+          liRemove.remove();
+          announceLiveRegion(text)
+        }
+      });
+    </script>
+  </body>
+</html>

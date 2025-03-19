@@ -1,0 +1,22 @@
+{
+  "name": "a11y",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "cypress": "cypress open",
+    "cypress:run": "CYPRESS_DEBUG=true cypress run --browser chrome",
+    "cypress:e2e": "cypress run --browser chrome --e2e",
+    "dev": "http-server ./src -p 80"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "cypress": "^13.6.4",
+    "cypress-axe": "^1.5.0",
+    "cypress-each": "^1.13.3",
+    "cypress-html-validate": "^6.1.0",
+    "html-validate": "^8.9.1",
+    "http-server": "^14.1.1"
+  }
+}

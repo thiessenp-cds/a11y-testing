@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Grid (TODO)</title>
+    <style>
+      input:focus {
+        border:1px solid green;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Grid</h1>
+    </header>
+    <main>
+      <p><strong>Left off: starting on key nav, multi-dimensional array</strong></p>
+      <p>Add role=grid, leave as is for cells with tab-able elements otherwise add tabindex=-1 to cells, 
+        tabbing to the table should focus the first cell and key controls take over, tab again should
+        tab out of the table. <a href="https://www.w3.org/WAI/ARIA/apg/patterns/grid/examples/data-grids/">Grid example</a></p>
+    
+        <!--
+          semantis: role=grid, ?still announced as table though?
+          tabstop: tabindex=0 on table
+          programmtic keys: tabindex=-1 on inputs
+        -->
+      <table id="grid-table" role="grid" tabindex="0">
+        <caption>A test Grid table</caption>
+        <thead>
+          <tr>
+            <th>Content</th>
+            <th>Interaction</th>
+            <th>Content</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td tabindex="-1">static content 1</td>
+            <td><label><input type="checkbox" tabindex="-1"> A</label></td>
+            <td tabindex="-1">static content 2</td>
+          </tr>
+          <tr>
+            <td tabindex="-1">static content 1</td>
+            <td><label><input type="checkbox" tabindex="-1"> B</label></td>
+            <td tabindex="-1">static content 2</td>
+          </tr>
+          <tr>
+            <td tabindex="-1">static content 1</td>
+            <td><label><input type="checkbox" tabindex="-1"> C</label></td>
+            <td tabindex="-1">static content 2</td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // Initialize
+        const tableGrid = Array.from(document.querySelectorAll("#grid-table > tbody > tr")).map(rowEl => {
+          return Array.from(rowEl.querySelectorAll("[tabindex]"));
+        });
+        let rowI = 0;
+        let cellI = 0;
+
+        function focusCell(el) {
+          if (!el || !el.hasAttribute("tabindex")) {
+            return;
+          }
+
+          el.focus();
+        }
+
+        const table =  document.getElementById("grid-table");
+
+        // TODO: handle initial table entry - could always focus first cell?
+        //
+        // Delegate behavior to container Tabel element
+        table.addEventListener("keydown", function(e) {
+          const key = e.key;
+          console.log(key)
+
+          switch(key) {
+            case "ArrowDown":
+              // End of rows, do nothing
+              if (!tableGrid[rowI + 1]) {
+                return;
+              }
+              rowI += 1;
+              focusCell(tableGrid[rowI][cellI]);
+              break;
+            case "ArrowUp":
+              // End of rows, do nothing
+              if (!tableGrid[rowI - 1]) {
+                return;
+              }
+              rowI -= 1;
+              focusCell(tableGrid[rowI][cellI]);
+              break;
+            case "ArrowLeft":
+              // Beginning of row, do nothing
+              if (!tableGrid[rowI][cellI - 1]) {
+                return;
+              }
+              cellI -= 1;
+              focusCell(tableGrid[rowI][cellI])
+            break;
+            case "ArrowRight":
+              // End of row, do nothing
+              if (!tableGrid[rowI][cellI + 1]) {
+                return;
+              }
+              cellI += 1;
+              focusCell(tableGrid[rowI][cellI])
+            break;
+          }
+        })
+      })
+    </script>
+  </body>
+</html>

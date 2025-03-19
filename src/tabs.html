@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Tabs</title>
+  <style>
+    [role="tab"]:hover span.focus,
+    [role="tab"]:focus span.focus,
+    [role="tab"]:active span.focus {
+      padding: 2px 4px;
+      border: 2px solid rgb(36 116 214);
+      border-radius: 3px;
+    }
+
+    [role='tab'][aria-selected='true'] {
+      background-color: aqua;
+    }
+
+    [role="tabpanel"] {
+      padding: 5px;
+      border: 2px solid hsl(219deg 1% 72%);
+      border-radius: 0 5px 5px;
+      background: hsl(220deg 43% 99%);
+      min-height: 10em;
+      width: 100%;
+      overflow: auto;
+    }
+
+    [role="tabpanel"] {
+      display: none;
+    }
+
+    [role="tabpanel"].active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Tabs</h1>
+  </header>
+  <main>
+    <pre>
+      Do tabpanel updates need to be announced?
+      Tab updates are not announced in APG example. So I guess announcing is bonus points?
+
+      Dynamic content in tabs, does it need to be present at page load? 
+      No. adding live-regions, dynamic content is announced.
+
+      QUESTION onclick="activateTab(1)" downside? lose *THIS* (Yes. and *EVENT* (this=window, event.target=document))
+      QUESTION button type="button"? Is that to stop a potential form submit on enter? (yes in a form)
+      TODO look at, play with, and understand below event bindings more
+      TODO add keyboard nav like in APG example.
+    </pre>
+    <section>
+      <div role="tablist" aria-labelledby="cities-title">
+        <button role="tab" aria-controls="tabpanel-1" aria-selected="true" type="button" id="tab-1">Stuff 1</button>
+        <button role="tab" aria-controls="tabpanel-2" aria-selected="false" type="button" id="tab-2">Stuff 2</button>
+        <button role="tab" aria-controls="tabpanel-3" aria-selected="false" type="button" id="tab-3">Stuff 3</button>
+      </div>
+      <div role="tabpanel" aria-labelledby="tab-1" id="tabpanel-1" class="active" aria-live="polite">Loading 1..</div>
+      <div role="tabpanel" aria-labelledby="tab-2" id="tabpanel-2" aria-live="polite">Loading 2..</div>
+      <div role="tabpanel" aria-labelledby="tab-3" id="tabpanel-3" aria-live="polite">Loading 3..</div>
+    </section>
+  </main>
+  <script>
+    async function getData(id) {
+      let response = await fetch(`https://jsonplaceholder.typicode.com/photos/${id}`)
+      return response.json();
+    }
+
+    function setActiveTab(id) {
+      const newActivateTab = document.querySelector(`#tab-${id}`);
+      const newActivateTabpanel = document.querySelector(`#tabpanel-${id}`);
+
+      if (newActivateTab) {
+        newActivateTab.setAttribute("aria-selected", "true");
+      }
+      if (newActivateTabpanel) {
+        newActivateTabpanel.classList.add("active");
+      }
+    }
+
+    function removeActiveTab() {
+      const oldActiveTab = document.querySelector("[role='tab'][aria-selected='true']");
+      const oldActiveTabpanel = document.querySelector(`[role='tabpanel'].active`);
+
+      if (oldActiveTab) {
+        oldActiveTab.setAttribute("aria-selected", "false");
+      }
+      if (oldActiveTabpanel) {
+        oldActiveTabpanel.classList.remove("active");
+      }
+    }
+
+    async function setActiveTabContent(id) {
+      const data = await getData(id);
+      document.querySelector(`#tabpanel-${id}`).textContent = data.title;
+    }
+
+    async function handleAction(element, id) {
+      removeActiveTab();
+      setActiveTab(id);
+      setActiveTabContent(id);
+    }
+
+    document.addEventListener("DOMContentLoaded", async function() {
+      // Set initial tab content
+      setActiveTabContent(1);
+
+      // no this, no event.target (this=window, event.target=document) - can get element and set as state (useful for state passing)
+      document.querySelector("#tab-1").addEventListener("click", handleAction.bind(null, document.querySelector("#tab-1"), 1), false);
+
+      // no this, has event.target
+      document.querySelector("#tab-2").addEventListener("click", (event) => {  handleAction(event.target, 2) });
+
+      // has this, could also event.target
+      document.querySelector("#tab-3").addEventListener("click", function(event) { handleAction(this, 3)}); 
+    });
+  </script>
+</body>
+</html>

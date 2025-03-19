@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Dialog</title>
+    <style>
+      #dialogTest {
+        width:40%;
+        height:40%;
+        overflow-y:auto;
+        border:1px solid; 
+      }
+
+      #dialogTest .close {
+        position:absolute;
+        right: 1rem;
+        top: 1rem;
+      }
+
+      /* Not working "::backdrop CSS pseudo-element is a box the size of the viewport which is rendered immediately beneath any element being presented"-MDN
+      #dialogTest::backdrop {
+        background:red;
+      }
+      */
+      main[inert] {
+        filter: blur(2px);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Dialog</h1>
+<pre>
+-Focus the first interactive element in the dialog when it opens or the header if none. <a href="https://github.com/whatwg/html/wiki/dialog--initial-focus,-a-proposal#concerns-raised-regarding-keeping-the-status-quo">WHATWG dicussion</a>
+-inert only works if dialog is outside of main so all other controls become inert (see JS below)
+
+Todo:
+-returnValue
+-Custom ARIA diaolog
+</pre>
+      <hr>
+    </header>
+    <main>
+      <h2>HTML Dialog</h2>
+      <div><button id="buttonOpen">Open Dialog</button> Focus should return here to the activator button.</div>
+    </main>
+
+    <dialog id="dialogTest">
+      <!--"Warning: The tabindex attribute must not be used on the <dialog> element"-MDN -->
+      <h2>Dialog Test</h2>
+      <button id="buttonClose" class="close">Close</button>
+      <div>
+        <label>Input 1<input type="text" autofocus></label> Focus set here, to first interactive element using "autofocus".
+      </div>
+      <div>
+        <label>Input 2<input type="text" /></label>
+      </div>
+      <p>A poem is a literary composition, written by a poet, using this principle. Poetry has a long and varied history, evolving differentially across the globe.</p>
+      <p>A poem is a literary composition, written by a poet, using this principle. Poetry has a long and varied history, evolving differentially across the globe.</p>
+      <p>A poem is a literary composition, written by a poet, using this principle. Poetry has a long and varied history, evolving differentially across the globe.</p>
+      <p>The End.</p>
+    </dialog>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        const mainEl = document.querySelector("main");
+        const btnOpenEl = document.querySelector("#buttonOpen");
+        const btnCloseEl = document.querySelector("#buttonClose");
+        const dialogTest = document.querySelector("#dialogTest");
+
+        btnOpenEl.addEventListener("click", openDialog);
+
+        btnCloseEl.addEventListener("click", closeDialog);
+
+        dialogTest.addEventListener("keydown", (e) => {
+          if (e.key.toUpperCase() === "ESCAPE") {
+            closeDialog();
+          }
+        })
+
+        function openDialog() {
+          /* Note: "It is recommended to use the .show() or .showModal() methods to render dialogs, 
+            rather than the open attribute. If a <dialog> is opened using the open attribute, it 
+            will be non-modal."-MDN
+            -e.g. dialogTest.toggleAttribute("open"); // --bad practice
+          */
+          if (!dialogTest.open) {
+            mainEl.setAttribute("inert", "true");
+            dialogTest.show();  //-or- .showModal();
+          }
+        }
+
+        function closeDialog() {
+          if (dialogTest.open) {
+            mainEl.removeAttribute("inert");
+            dialogTest.close();
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

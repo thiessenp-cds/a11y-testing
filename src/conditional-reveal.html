@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Conditional Reveal</title>
+    <style>
+      .conditional {
+        display:none;
+      }
+
+      /*
+        Nope need JS I think since not in same Tree
+        .item intput[type="radio"]:checked ~ ... {}
+      */
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Conditional Reveal</h1>
+    </header>
+    <main>
+      <pre>
+        Fieldset should contain form elements but can be standalone not nested in a form element. It can also link by id to a form element.
+
+        TODO add details+summary as native "Reveal", related but not really :)
+
+        NOTE: Inspired by <a href="https://accessibility.blog.gov.uk/2021/09/21/an-update-on-the-accessibility-of-conditionally-revealed-questions/">Gov UK blog post</a> on conditional reveal and related <a href="https://design-system.service.gov.uk/components/radios/conditional-reveal/">component library</a>
+        NOTE <a href="https://css-tricks.com/exposing-form-fields-radio-button-css/">show/hide using CSS</a>
+      </pre>
+
+      <section>
+        <h2>ARIA-EXPANDED + ARIA-CONTROLS</h2>
+        <pre>
+          NOTE screen reader does NOT announce expanded state change. It does announce for input number increase by 1.
+        </pre>
+        <fieldset>
+          <legend>Testing ARIA-EXPANDED + ARIA-CONTROLS</legend>
+          <div class="option">
+            <!--NOTE the aria-expanded and aria-controls-->
+            <input aria-expanded="false" aria-controls="option1-conditional-container" type="radio" value="option1" id="option1" name="optionSelected">
+            <label for="option1">option 1</label>  
+          </div>
+          <div hidden class="option-conditional" id="option1-conditional-container">
+            <label for="option1-conditional">option 1 revealed</label>  
+            <input id="option1-conditional" type="text" name="option1Conditional"> <!-- name=".." sends with form request over HTTP, good idea though JS usually handles this I think-->
+          </div>
+
+          <div class="option">
+            <input aria-expanded="false" aria-controls="option2-conditional-container" type="radio" value="option2" id="option2" name="optionSelected">
+            <label for="option2">option 2</label>  
+          </div>
+          <div hidden class="option-conditional" id="option2-conditional-container">
+            <label for="option2-conditional">option 2 revealed</label>  
+            <input id="option2-conditional" type="text" name="option2Conditional">
+          </div>
+
+          <div class="option">
+            <input aria-expanded="false" aria-controls="option3-conditional-container" type="radio" value="option3" id="option3" name="optionSelected">
+            <label for="option3">option 3</label>  
+          </div>
+          <div hidden class="option-conditional" id="option3-conditional-container">
+            <label for="option3-conditional">option 3 revealed</label>  
+            <input id="option3-conditional" type="text" name="option3Conditional">
+          </div>
+        </fieldset>
+      </section>
+
+      <section>
+        <h2>ARIA-EXPANDED + ARIA-CONTROLS + ARIA-LIVE</h2>
+        <pre>
+          NOTE: probably best to use just aria-live but since aria-expanded not announced by AT no harm. If the spec changes though..
+          NOTE: Not sure why VoiceOver announces live region update for label element twice. A "p" element for example announces only once..
+        </pre>
+        <fieldset>
+          <legend>Testing ARIA-EXPANDED + ARIA-CONTROLS + ARIA-LIVE</legend>
+          <div class="optionLive">
+            <input aria-expanded="false" type="radio" value="option1" id="option1-live" name="optionSelectedLive">
+            <label for="option1-live">option 1</label>  
+          </div>
+          <!-- NOTE putting live region on child with "hidden" works but may be unpredictable so follow BP on container -->
+          <div aria-live="polite">
+            <div hidden id="option1-live-conditional-container">
+              <label for="option1-live-conditional">option 1 revealed</label>
+              <input id="option1-live-conditional" type="text" name="option1LiveConditional">
+            </div>
+          </div>
+
+          <div class="optionLive">
+            <input aria-expanded="false" type="radio" value="option1" id="option2-live" name="optionSelectedLive">
+            <label for="option2-live">option 2</label>  
+          </div>
+          <div aria-live="polite">
+            <div hidden id="option2-live-conditional-container">
+              <label for="option2-live-conditional">option 2 revealed</label>  
+              <input id="option2-live-conditional" type="text" name="option2LiveConditional">
+            </div>
+          </div>
+
+          <div class="optionLive">
+            <input aria-expanded="false" type="radio" value="option1" id="option3-live" name="optionSelectedLive">
+            <label for="option3-live">option 3</label>  
+          </div>
+          <div aria-live="polite">
+            <div hidden id="option3-live-conditional-container">
+              <label for="option3-live-conditional">option 3 revealed</label>  
+              <input id="option3-live-conditional" type="text" name="option3LiveConditional">
+            </div>
+          </div>
+
+        </fieldset>
+      </section>
+    </main>
+
+
+    <script>
+      function reset(els, stringId) {
+        els.forEach(el => {
+          if (el.getAttribute("aria-expanded") === "true") {
+            el.setAttribute("aria-expanded", "false")
+          }
+
+          const conditionalEl = document.querySelector(`#${el.id}-${stringId}`);
+          if (!conditionalEl.hasAttribute("hidden")) {
+            conditionalEl.setAttribute("hidden", "");  //NOTE boolean attribute? set = "". See https://developer.mozilla.org/en-US/docs/Web/API/Element/setAttribute
+          }
+        })
+      }
+
+      function addBehavior(els, stringId) {
+        els.forEach(el => el.addEventListener("click", function(e) {
+          reset(els, stringId);
+
+          const optionEl = e.target;
+          optionEl.setAttribute("aria-expanded", "true");
+
+          const id = e.target.id;
+          const conditionalEl = document.querySelector(`#${id}-${stringId}`);
+          conditionalEl.removeAttribute("hidden");  // toggleAttribute() not work because of reset()
+        }));
+      }
+
+      document.addEventListener("DOMContentLoaded", function() {
+        const els = document.querySelectorAll(".option input[type='radio']");
+        addBehavior(els, "conditional-container");
+
+        const elsLive = document.querySelectorAll(".optionLive input[type='radio']");
+        addBehavior(elsLive, "conditional-container");
+      });
+    </script>
+  </body>
+</html>

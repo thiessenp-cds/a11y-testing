@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+  <head>
+      <meta charset="utf-8" />
+      <title>Drag and Drop</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        .listsContainer {
+          display:flex
+        }
+        .listContainer {
+          margin-right:2rem;
+        }
+        /* Tree */
+        .draggableList {
+          list-style-type: none;
+          border: 2px solid black;
+          border-radius: 10px;
+          padding: .5rem;
+        }
+        .draggableList li {
+          padding: 1rem;
+          text-align: center;
+          cursor: move;
+        }
+        /* Leaf */
+        .draggableList li div {
+          height: 1rem;
+          width: 8rem;
+          padding: .5rem;
+          border-radius: 10px;
+          background-color: #ccc;
+          border: 2px solid black;
+          transition: background-color 1s ease-in; /* animate the color back in from a previous animate */
+        }
+        .draggableList li .branchTitle {
+          background: lightskyblue;
+          border-radius: 0;
+          width: 100%;
+        }
+        .draggableList li.dragElem {
+          opacity: 0.4;
+        }
+        .draggableList li.dragOver {
+          border-top: 4px dashed green;
+        }
+        [draggable] {
+          -moz-user-select: none;
+          -khtml-user-select: none;
+          -webkit-user-select: none;
+          user-select: none;
+        }
+        /* Taken from: https://css-tricks.com/inclusively-hidden/ */
+        .sr-only:not(:focus):not(:active) {
+          clip: rect(0 0 0 0); 
+          clip-path: inset(50%);
+          height: 1px;
+          overflow: hidden;
+          position: absolute;
+          white-space: nowrap; 
+          width: 1px;
+        }
+        ul li.success div {
+          background-color: lightgreen;
+          transition: background-color 1s ease-in;
+        }
+
+        .draggableTree {
+          list-style-type: none;
+          border: 0;
+          border-left: 2px solid black;
+          border-radius: 0;
+          padding: .5rem;
+        }
+
+        /* Disable clicking on the arrow element and allow the event to bubble up to the parent */
+        .arrow {
+          pointer-events: none;
+        }
+        .icon-right:before {
+          content: "\25B6";
+        }
+        .icon-down:before {
+          content: "\25BC";
+        }
+      </style>
+  </head>
+  <body>
+    <main>
+      <h1>Drag and Drop</h1>
+      <hr />
+<pre>
+Notes
+-role=listbox & role=option adds well understood semantics for selectable items. role=option tells a user s/he can select this
+-aria-roledescription describe the custom widget. Normally AT would include the original role but not a listbox (JAWS/NVDA), so added "listbox" to the description
+-announcing a selected it is done using live-regions orver aria-checked. aria-checked state changes do not seem to be announced
+        -aria-checked would have been used over aria-pressed because of better AT support
+-aria-grabbed and aria-dropeffect are not full implemented by AT (deprecated in ARIA 1.1) so not used
+-Refs: <a href="https://www.tpgi.com/the-road-to-accessible-drag-and-drop-part-2">[1]</a>, <a href="https://www.w3.org/WAI/ARIA/apg/patterns/treeview/">[2]</a>, <a href="https://dequeuniversity.com/library/aria/tree-view">[3]</a>
+
+LIST EXAMPLE SEMANTICS
+ul role=listbox (html element=select)
+  li role=option (html element=option) aria-selected=BOOLEAN tabindex=-1
+
+TREE EXAMPLE SEMANTICS
+ul role=tree
+  li role=treeitem aria-selected=BOOLEAN tabindex=-1  //Currently selected gets a tabindex=0
+  li role=treeitem aria-expanded=BOOLEAN aria-selected=BOOLEAN tabindex=-1
+    ul role=group
+      li role=treeitem (same as above)
+
+TODO
+Currently treeview clicking is hacked to work with expanding titles. Keynav will be more difficult
+and require refactoring and thinking about how to enter UL list branch and focus the title for
+expand/collapse.
+</pre>
+      <hr />
+      <div class="listsContainer">
+        <div id="list-description" class="sr-only">Navigate between lists using tab and arrow keys within the list. Select an item with <kbd>spacebar</kbd> and drop drop it in position with <kbd>enter"</kbd></div>
+        <div class="listContainer">
+          <h2 id="list1-title">List 1</h2>
+          <ul id="list1" class="draggableList" aria-labelledby="list1-title" tabindex="0" aria-describedby="list-description" role="listbox" aria-roledescription="listbox drag and drop">
+            <li id="l1-1" draggable="true" role="option" tabindex="-1" aria-selected="false"><div>1A</div></li>
+            <li id="l1-2" draggable="true" role="option" tabindex="-1"><div>1B</div></li>
+            <li id="l1-3" draggable="true" role="option" tabindex="-1"><div>1C</div></li>
+            <li id="l1-4" draggable="true" role="option" tabindex="-1"><div>1D</div></li>
+            <li id="l1-5" draggable="true" role="option" tabindex="-1"><div>1E</div></li>
+          </ul>
+        </div>
+        <div class="listContainer">
+          <h2 id="list2-title">List 2</h2>
+          <ul id="list2" class="draggableList" aria-labelledby="list2-title" tabindex="0" aria-describedby="list-description" role="listbox" aria-roledescription="listbox drag and drop">
+            <li id="l2-1" draggable="true" role="option" tabindex="-1"><div>2A</div></li>
+            <li id="l2-2" draggable="true" role="option" tabindex="-1"><div>2B</div></li>
+            <li id="l2-3" draggable="true" role="option" tabindex="-1"><div>2C</div></li>
+            <li id="l2-4" draggable="true" role="option" tabindex="-1"><div>2D</div></li>
+            <li id="l2-5" draggable="true" role="option" tabindex="-1"><div>2E</div></li>
+          </ul>
+        </div>
+        <div class="listContainer">
+          <h2 id="list3-title">List 3</h2>
+          <ul id="list3" class="draggableList" aria-labelledby="list3-title" tabindex="0" aria-describedby="list-description" role="listbox" aria-roledescription="listbox drag and drop">
+            <li id="l3-1" draggable="true" role="option" tabindex="-1"><div>3A</div></li>
+            <li id="l3-2" draggable="true" role="option" tabindex="-1"><div>3B</div></li>
+            <li id="l3-3" draggable="true" role="option" tabindex="-1"><div>3C</div></li>
+            <li id="l3-4" draggable="true" role="option" tabindex="-1"><div>3D</div></li>
+            <li id="l3-5" draggable="true" role="option" tabindex="-1"><div>3E</div></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="listsContainer">
+        <div class="listContainer">
+          <h2 id="list4-title">Tree 1</h2>
+          <ul role="tree" id="list4" class="draggableList draggableTree" aria-labelledby="list4-title" tabindex="0" aria-describedby="list-description">
+            <li role="treeitem" aria-selected="false" id="l4-1" draggable="true" tabindex="-1"><div>4A</div></li>
+            <li role="treeitem" aria-selected="false" id="l4-2" draggable="true" tabindex="-1"><div>4B</div></li>
+            <li role="treeitem" aria-selected="false" id="l4-3" draggable="true" tabindex="-1"><div>4C</div></li>
+            <li role="treeitem" aria-selected="false" id="l4-4" draggable="true" tabindex="-1"><div>4D</div></li>
+            
+            <li role="treeitem" aria-expanded="true" aria-selected="false" id="l4-5" draggable="true" tabindex="-1">
+              <div id="list4_1-title" class="branchTitle" tabindex="-1">Sub Tree 1 of Tree 1 <span class="arrow icon-right"></span></div>
+              <ul role="group" aria-roledescription="sub tree" aria-labelledby="list4_1-title" id="list4_1" class="draggableList draggableTree">
+                <li role="treeitem" aria-selected="false" id="l4_1-1" draggable="true" tabindex="-1"><div>4_1A</div></li>
+                <li role="treeitem" aria-selected="false" id="l4_1-2" draggable="true" tabindex="-1"><div>4_1B</div></li>
+                <li role="treeitem" aria-selected="false" id="l4_1-3" draggable="true" tabindex="-1"><div>4_1C</div></li>
+                <li role="treeitem" aria-selected="false" id="l4_1-4" draggable="true" tabindex="-1"><div>4_1D</div></li>
+                
+                <li role="treeitem" aria-expanded="true" aria-selected="false" id="l4_1-5" draggable="true" tabindex="-1">
+                  <div id="list4_1_1-title" class="branchTitle" tabindex="-1">Sub Tree 1 of Sub Tree 1 of Tree 1 <span class="arrow icon-right"></span></div>
+                  <ul role="group" aria-roledescription="sub tree" aria-labelledby="list4_1_1-title"  aria-describedby="list-description" id="list4_1_1" class="draggableList draggableTree">
+                    <li role="treeitem" aria-selected="false" id="l4_1_1-1" draggable="true" tabindex="-1"><div>4_1_1A</div></li>
+                    <li role="treeitem" aria-selected="false" id="l4_1_1-2" draggable="true" tabindex="-1"><div>4_1_1B</div></li>
+                    <li role="treeitem" aria-selected="false" id="l4_1_1-3" draggable="true" tabindex="-1"><div>4_1_1C</div></li>
+                    <li role="treeitem" aria-selected="false" id="l4_1_1-4" draggable="true" tabindex="-1"><div>4_1_1D</div></li>
+                    <li role="treeitem" aria-selected="false" id="l4_1_1-5" draggable="true" tabindex="-1"><div>4_1_1E</div></li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+        <div class="listContainer">
+          <h2 id="list5-title">Tree 2 (TODO)</h2>
+          <ul id="list5" class="draggableList draggableTree" aria-labelledby="list4-title" tabindex="0" aria-describedby="list-description" role="listbox" aria-roledescription="listbox drag and drop">
+            <li id="l5-1" draggable="true" role="option" tabindex="-1"><div>5A</div></li>
+            <li id="l5-2" draggable="true" role="option" tabindex="-1"><div>5B</div></li>
+            <li id="l5-3" draggable="true" role="option" tabindex="-1"><div>5C</div></li>
+            <li id="l5-4" draggable="true" role="option" tabindex="-1"><div>5D</div></li>
+            <li id="l5-5" draggable="true" role="option" tabindex="-1">
+              <h2 id="list5_1-title" class="sr-only">Sub Tree 1 of Tree 2</h2>
+              <ul id="list5_1" class="draggableList draggableTree" aria-labelledby="list5_1-title" aria-describedby="list-description" role="listbox" aria-roledescription="listbox drag and drop">
+                <li id="l5_1-1" draggable="true" role="option" tabindex="-1"><div>5_1A</div></li>
+                <li id="l5_1-2" draggable="true" role="option" tabindex="-1"><div>5_1B</div></li>
+                <li id="l5_1-3" draggable="true" role="option" tabindex="-1"><div>5_1C</div></li>
+                <li id="l5_1-4" draggable="true" role="option" tabindex="-1"><div>5_1D</div></li>
+                <li id="l5_1-5" draggable="true" role="option" tabindex="-1">
+                  <h2 id="list5_1_1-title" class="sr-only">Sub Tree 1 of Sub Tree 1 of Tree 2</h2>
+                  <ul id="list5_1_1" class="draggableList draggableTree" aria-labelledby="list5_1-title" aria-describedby="list-description" role="listbox" aria-roledescription="listbox drag and drop">
+                    <li id="l5_1_1-1" draggable="true" role="option" tabindex="-1"><div>5_1_1A</div></li>
+                    <li id="l5_1_1-2" draggable="true" role="option" tabindex="-1"><div>5_1_1B</div></li>
+                    <li id="l5_1_1-3" draggable="true" role="option" tabindex="-1"><div>5_1_1C</div></li>
+                    <li id="l5_1_1-4" draggable="true" role="option" tabindex="-1"><div>5_1_1D</div></li>
+                    <li id="l5_1_1-5" draggable="true" role="option" tabindex="-1"><div>5_1_1E</div></li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+        <div class="listContainer">
+          <h2 id="list6-title">Tree 3 (TODO)</h2>
+          <ul id="list6" class="draggableList draggableTree" aria-labelledby="list6-title" tabindex="0" aria-describedby="list-description" role="listbox" aria-roledescription="listbox drag and drop">
+            <li id="l6-1" draggable="true" role="option" tabindex="-1"><div>6A</div></li>
+            <li id="l6-2" draggable="true" role="option" tabindex="-1"><div>6B</div></li>
+            <li id="l6-3" draggable="true" role="option" tabindex="-1"><div>6C</div></li>
+            <li id="l6-4" draggable="true" role="option" tabindex="-1"><div>6D</div></li>
+            <li id="l6-5" draggable="true" role="option" tabindex="-1">
+              <h2 id="list6_1-title" class="sr-only">Sub Tree 1 of Tree 2</h2>
+              <ul id="list6_1" class="draggableList draggableTree" aria-labelledby="list6_1-title" aria-describedby="list-description" role="listbox" aria-roledescription="listbox drag and drop">
+                <li id="l6_1-1" draggable="true" role="option" tabindex="-1"><div>6_1A</div></li>
+                <li id="l6_1-2" draggable="true" role="option" tabindex="-1"><div>6_1B</div></li>
+                <li id="l6_1-3" draggable="true" role="option" tabindex="-1"><div>6_1C</div></li>
+                <li id="l6_1-4" draggable="true" role="option" tabindex="-1"><div>6_1D</div></li>
+                <li id="l6_1-5" draggable="true" role="option" tabindex="-1">
+                  <h2 id="list6_1_1-title" class="sr-only">Sub Tree 1 of Tree 2</h2>
+                  <ul id="list6_1_1" class="draggableList draggableTree" aria-labelledby="list6_1_1-title" aria-describedby="list-description" role="listbox" aria-roledescription="listbox drag and drop">
+                    <li id="l6_1_1-1" draggable="true" role="option" tabindex="-1"><div>6_1_1A</div></li>
+                    <li id="l6_1_1-2" draggable="true" role="option" tabindex="-1"><div>6_1_1B</div></li>
+                    <li id="l6_1_1-3" draggable="true" role="option" tabindex="-1"><div>6_1_1C</div></li>
+                    <li id="l6_1_1-4" draggable="true" role="option" tabindex="-1"><div>6_1_1D</div></li>
+                    <li id="l6_1_1-5" draggable="true" role="option" tabindex="-1"><div>6_1_1E</div></li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div id="liveChannel" aria-live="polite" aria-relevant="additions text" class="sr-only"></div>
+    </main>
+    <script>
+      function handleDragStart(e) {
+        if (!isTarget.call(this, e)) { return; }  // This fails to set context? isTarget(e).bind(this)
+        // Capture data to be used in drop
+        e.dataTransfer.effectAllowed = "move";
+        e.dataTransfer.setData("text", `${e.target.id},${e.target.parentElement.id}`); // Move by Ids
+        e.target.classList.add("dragElem");
+        announce(`Item selected with text ${e.target.textContent}.`);
+      }
+
+      function handleDragOver(e) {
+        if (!isTarget.call(this, e)) { return; }
+        if (e.preventDefault) { e.preventDefault(); } // Allows drop
+        e.dataTransfer.dropEffect = "move";
+        e.target.classList.add("dragOver");
+      }
+
+      function handleDragEnter(e) {
+        // TODO: current hover target
+      }
+
+      function handleDragLeave(e) {
+        e.target.classList.remove("dragOver");
+      }
+
+      function handleDrop(e, dragData) {
+        if (!isTarget.call(this, e)) { return; }
+        // Useful if a E.g. link to stop navigation
+        if (e.dataTransfer) {
+          const isLink = e.dataTransfer.types.includes("text/uri-list");
+          if (isLink) { e.preventDefault(); }
+        }
+        // Pull data from detData API or params to get elements
+        const [sourceId, parentId] = dragData ? dragData.split(",") : e.dataTransfer.getData("text").split(",");
+        const sourceEl = document.getElementById(sourceId);
+        const parentSourceEl = document.getElementById(parentId);
+        const targetEl = e.target;
+        // Stop if dragged onto self
+        let droppedEl;
+        if (sourceEl != targetEl) {
+          parentSourceEl.removeChild(sourceEl);
+          targetEl.insertAdjacentHTML("beforebegin", sourceEl.outerHTML);
+          droppedEl = targetEl.previousSibling;
+          droppedEl.classList.remove("dragElem");
+          
+          // Show a success animation on the dropped element
+          // Note: Timeout Related to Event loop priority 
+          // see https://stackoverflow.com/questions/45275438/css-transition-is-not-trigger-by-add-classes-in-a-same-function
+          setTimeout(() => {
+            droppedEl.classList.add("success"); 
+            setTimeout(() => {
+              droppedEl.classList.remove("success");
+            }, 1000);
+
+            droppedEl.focus();
+          }, 0);  
+
+          dragData = null;
+          announce(`Item dropped with text ${droppedEl.textContent}.`);
+        }
+        // Clean up
+        targetEl.classList.remove("dragOver");
+      }
+
+      function handleDragEnd(e) {
+        e.target.classList.remove("dragOver");
+        e.target.classList.remove("dragElem");
+      }
+
+      let dragData = null;  // TODO: consider using a data attribute instead
+      function addKeyNav(el, childrenSelector) {
+        el.addEventListener("keydown", function(e) {
+          switch (e.key) {
+            case "ArrowDown":
+              focusNext(e, el.querySelectorAll(childrenSelector));
+              e.preventDefault();
+              break;
+            case "ArrowUp":
+              focusNext(e, el.querySelectorAll(childrenSelector), "up");
+              e.preventDefault();
+              break;
+            case " ":
+              dragData = `${e.target.id},${e.target.parentElement.id}`;
+              e.target.classList.add("dragElem");
+              announce(`Item selected with text ${e.target.textContent}.`);
+              e.preventDefault();
+              break;
+            case "Enter":
+              if (dragData) {
+                handleDrop.call(this, e, dragData);
+                e.preventDefault();
+              }
+              break;
+          }
+        });
+      }
+
+      function focusNext(e, children, direction="down") {
+        const index = Array.from(children).indexOf(document.activeElement);
+        const nextIndex = index + (direction==="down" ? 1 : -1);
+        if (nextIndex < 0 || nextIndex >= children.length) {
+          return;
+        }
+        if (children[nextIndex]) {
+          children[nextIndex].focus();
+        }
+      }
+
+      function addDnD(el) {
+        el.addEventListener("dragstart", handleDragStart, false);
+        el.addEventListener("dragenter", handleDragEnter, false)
+        el.addEventListener("dragover", handleDragOver, false);
+        el.addEventListener("dragleave", handleDragLeave, false);
+        el.addEventListener("drop", handleDrop, false);
+        el.addEventListener("dragend", handleDragEnd, false);
+      }
+
+      function addTreeviewBehavior(element) {
+        const subTreeEls = element.querySelectorAll("[aria-expanded]");
+        function treeViewHandler(e) {
+          if (!e.target.classList.contains("branchTitle")) { return; } 
+
+          const parentEl = e.target.parentElement;
+          const branchEl = parentEl.querySelector("[role=group]");
+          const isExpanded = !(parentEl.getAttribute("aria-expanded") === "true");
+          const arrowEl = parentEl.querySelector(".arrow");
+          // Toggle it
+          parentEl.setAttribute("aria-expanded", isExpanded);
+          isExpanded ? arrowEl.classList.replace("icon-down", "icon-right") : arrowEl.classList.replace("icon-right", "icon-down");
+          isExpanded ? branchEl.removeAttribute("hidden") : branchEl.setAttribute("hidden", true);
+          // On nested trees, this stops the event being handled twice
+          e.stopPropagation();
+        }
+        subTreeEls.forEach((el) => {
+          el.addEventListener("click", treeViewHandler, false);
+          el.addEventListener("keydown", function(e)  { 
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              treeViewHandler(e);
+            }
+          }, false);
+        })
+      }
+
+      // Used to allow only list items and children to be d&d
+      function isTarget(e) {
+        const li = e.target.closest("li");
+        if (!li) { return false; }                  // Current LI?
+        if (!this.contains(li)) { return false; }   // Current LI in current list (could be nested and an outside list )
+        return true;
+      }
+
+      const liveChannel = document.getElementById("liveChannel");
+      function announce(message) {
+        liveChannel.textContent = message;
+      }
+
+      document.addEventListener("DOMContentLoaded", function() {
+        // See:  https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API
+
+        // Adds d&d beheviour
+        const list1 = document.querySelector("#list1");
+        addDnD(list1);
+        const list2 = document.querySelector("#list2");
+        addDnD(list2);
+        const list3 = document.querySelector("#list3");
+        addDnD(list3);
+        const list4 = document.querySelector("#list4");
+        addDnD(list4);
+        const list5 = document.querySelector("#list5");
+        addDnD(list5);
+        const list6 = document.querySelector("#list6");
+        addDnD(list6);
+
+        // Adds keynav
+        const list1Container = document.getElementById("list1");
+        const list1ChildrenSelector = "#list1 li";
+        addKeyNav(list1Container, list1ChildrenSelector);
+        const list2Container = document.getElementById("list2");
+        const list2ChildrenSelector = "#list2 li";
+        addKeyNav(list2Container, list2ChildrenSelector);
+        const list3Container = document.getElementById("list3");
+        const list3ChildrenSelector = "#list3 li";
+        addKeyNav(list3Container, list3ChildrenSelector);
+        const list4Container = document.getElementById("list4");
+        const list4ChildrenSelector = "#list4 li";
+        addKeyNav(list4Container, list4ChildrenSelector);
+        const list5Container = document.getElementById("list5");
+        const list5ChildrenSelector = "#list5 li";
+        addKeyNav(list5Container, list5ChildrenSelector);
+        const list6Container = document.getElementById("list6");
+        const list6ChildrenSelector = "#list6 li";
+        addKeyNav(list6Container, list6ChildrenSelector);
+
+        // Adds treeview
+        addTreeviewBehavior(list4);
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+      <meta charset="utf-8" />
+      <title>Radios-Checkboxes</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+  <body>
+    <header>
+      <h1>Radios-Checkboxes</h1>
+    </header>
+    <main>
+      <section>
+        <h2>radios + aria-describedby</h2>
+        <pre>
+          GOAL announce additional content when activating radio
+          NOTE use aria-describedby on radio input. *not* on LABEL, label will override it
+          NOTE *not* use aria-labelledby on INPUT overrides LABEL (see toronto). Use aria-describedby
+        </pre>
+        <fieldset>
+          <legend>Cities</legend>
+          <ul>
+            <li>
+              <label for="ottawa">Ottawa <input aria-describedby="description-ottawa" type="radio" name="cities" id="ottawa" /></label>
+            </li>
+            <li>
+              <label aria-describedby="description-montreal" for="montreal">Montreal <input type="radio" name="cities" id="montreal"/></label>
+            </li>
+            <li>
+              <input aria-labelledby="description-toronto" type="radio" name="cities" id="toronto"/>
+              <label for="toronto">Toronto</label>
+            </li>
+          </ul>
+          <div id="description-ottawa">test additional description ottawa  (only works)</div>
+          <div id="description-montreal">test additional description montreal</div>
+          <div id="description-toronto">test additional description toronto</div>
+        </fieldset>
+      </section>
+      <section>
+        <h2>checkbox + aria-describedby</h2>
+        <pre>
+          GOAL announce additional content when activating checkbox
+          NOTE name+value sent to form. *not* shared name like radio
+        </pre>
+        <fieldset>
+          <legend>Countries</legend>
+          <ul>
+            <li>
+              <label for="canada">Canada <input aria-describedby="description-canada" type="checkbox" name="canada" value="canada" id="canada" /></label>
+            </li>
+            <li>
+              <label aria-describedby="description-usa" for="usa">USA <input type="checkbox" name="usa" value="usa" id="usa"/></label>
+            </li>
+            <li>
+              <input aria-labelledby="description-uk" type="checkbox" name="uk" value="uk" id="uk"/>
+              <label for="uk">UK</label>
+            </li>
+          </ul>
+          <div id="description-canada">test additional description canada (only works)</div>
+          <div id="description-usa">test additional description usa (label overrides aria-describedby) </div>
+          <div id="description-uk">test additional description uk (aria-labelledby overides label)</div>
+        </fieldset>
+      </section>
+    </main>
+  </body>
+</html>

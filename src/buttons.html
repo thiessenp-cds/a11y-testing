@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+      <meta charset="utf-8" />
+      <title>Buttons</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+  <body>
+    <header>
+      <h1>Buttons</h1>
+    </header>
+    <main>
+<pre class="mt-8">
+-NO WCAG requirements for contrast with a disabled button but should communicate change (below)
+-disable/enable state change not announced by AT, must communicate using something like live-regions (can hide with CSS for non SR)
+-More info https://css-tricks.com/making-disabled-buttons-more-inclusive/
+
+Todo:
+-Example of a Submit button should not be disabled, only appear disabled - see post about it
+</pre>
+  
+      <section>
+        <h2>Disable/Enable without live-region</h2>
+        <button id="test_disable_enable_trigger1" type="button">Disable/enable button</button>
+        <button id="test_disable_enable_button_output1" type="button" aria-disabled="false">Enabled</button>
+      </section>
+
+      <section>
+        <h2>Disable/Enable WITH live-region</h2>
+        <button id="test_disable_enable_trigger2" type="button">Disable/enable button</button>
+        <button id="test_disable_enable_button_output2">Enabled</button>
+        <span id="test_disable_enable_button_live2" aria-live="assertive"></span>
+      </section>
+    </main>
+
+    <script>
+      function testTrigger1() {
+        const buttonOutput = document.getElementById("test_disable_enable_button_output1");
+        document.getElementById("test_disable_enable_trigger1").addEventListener("click", function(e) {
+          if (buttonOutput.disabled) {
+            buttonOutput.disabled = false;
+            buttonOutput.ariaDisabled = false;
+            buttonOutput.textContent =  "Enabled";
+          } else {
+            buttonOutput.disabled = true;
+            buttonOutput.ariaDisabled = true;
+            buttonOutput.textContent = "Disabled"
+          }
+        })
+      }
+
+      function testTrigger2() {
+        const buttonOutput = document.getElementById("test_disable_enable_button_output2");
+        const liveOutput = document.getElementById("test_disable_enable_button_live2");
+        document.getElementById("test_disable_enable_trigger2").addEventListener("click", function(e) {
+          if (buttonOutput.disabled) {
+            buttonOutput.disabled = false;
+            buttonOutput.ariaDisabled = false;
+            buttonOutput.textContent = "Enabled"
+            liveOutput.textContent =  "Button Enabled";
+          } else {
+            buttonOutput.disabled = true;
+            buttonOutput.ariaDisabled = true;
+            buttonOutput.textContent = "Disabled"
+            liveOutput.textContent =  "Button Disabled";
+          }
+        })
+      }
+
+      document.addEventListener("DOMContentLoaded", function() {
+        testTrigger1();
+        testTrigger2();
+      })
+    </script>
+  </body>
+</html>

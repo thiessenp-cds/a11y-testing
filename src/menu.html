@@ -1,0 +1,284 @@
+<!DOCTYPE html lang="en">
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>menu</title>
+
+<style>
+.menu {
+  /*position: relative;*/
+}
+
+.menu > button:active {
+  border: 2px solid black;
+}
+
+.menu [role="menu"] {
+  display: none;
+  position: absolute;
+  border: 2px solid black;
+  background: white;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.menu [role="menuitem"] {
+  padding: .5rem 1rem;
+  cursor: pointer;
+}
+.menu [role="menuitem"]:first-child {
+  padding-top: 1rem;
+}
+.menu [role="menuitem"]:last-child {
+  padding-bottom: 1rem;
+}
+
+.menu [role="menuitem"] > a {
+  text-decoration: none;
+}
+.menu [role="menuitem"] > a:hover,
+.menu [role="menuitem"] > a:active {
+  text-decoration: underline;
+}
+
+.menu button[aria-expanded="true"] {
+  border: 3px solid black;
+  background: #FFF;
+}
+
+.menu [role="menuitem"].focus,
+.menu [role="menuitem"]:hover {
+  border: 2px solid black;
+}
+</style>
+<script>
+
+
+// TODO: could add a layer mask to close on click outside, and or use "mouseout" event on container
+class MenuDropdown {
+  menuList;
+  menuButton;
+  menuListItems;
+  menuListActiveIndex;
+
+  constructor(props={}) {
+    // Allow late binding
+    const menuButton = props.menuButton;
+    const menuList = props.menuList;
+    if (menuButton && menuList) {
+      this.init({menuButton, menuList})
+    }
+  }
+
+  // TODO: check if list is greater than 0 length
+  init({menuButton, menuList}) {
+    this.menuList = menuList;
+    this.menuButton = menuButton;
+    this.menuListItems = menuList.children;
+    this.menuListActiveIndex = 0;
+
+    this.menuButton.addEventListener("click", e => this.toggle());
+    this.menuButton.addEventListener("keydown", e => this.onMenuButtonKey(e));
+    this.menuList.addEventListener("keydown", e => this.onMenuListKeydown(e));
+    this.menuList.addEventListener("click", e => this.onMenuListClick(e));
+    this.menuList.addEventListener("mouseover", e => this.onMenuListOver(e));
+  }
+
+  setFocus(menuItem, index) {
+    // Clean up
+    this.removeFocus(menuItem, index);
+    // Focus next
+    this.menuListActiveIndex  = index;
+    menuItem.focus(); // TODO: just can't remember why?.. hmmm...
+    menuItem.classList.add("focus");
+    this.menuList.setAttribute('aria-activedescendant', menuItem.id);
+  }
+
+  removeFocus(menuItem, index) {
+    const oldMenuItem = this.menuListItems[this.menuListActiveIndex];
+    oldMenuItem.classList.remove("focus");
+  }
+
+  focusFirst() {
+    this.setFocus(this.menuListItems[0], 0);
+  }
+
+  focusLast() {
+    this.setFocus(this.menuListItems[this.menuListItems.length - 1], this.menuListItems.length - 1);
+  }
+
+  focusNext() {
+    const nextMenuItem = this.menuListItems[this.menuListActiveIndex + 1];
+    if (!nextMenuItem) {
+      this.focusFirst();
+    } else {
+      this.setFocus(nextMenuItem, this.menuListActiveIndex + 1);
+    }
+  }
+
+  focusPrev() {
+    const prevMenuItem = this.menuListItems[this.menuListActiveIndex - 1];
+    if (!prevMenuItem) {
+      this.focusLast();
+    } else {
+      this.setFocus(prevMenuItem, this.menuListActiveIndex - 1);
+    }
+  }
+
+  open() {
+    this.menuList.style.display = "block";
+    this.menuButton.setAttribute("aria-expanded", "true");
+    this.menuList.focus();  // TODO: forget purpose of this?
+    this.focusFirst();
+  }
+
+  close() {
+    this.removeFocus(this.menuListItems[this.menuListActiveIndex], this.menuListActiveIndex);
+    this.menuButton.removeAttribute("aria-expanded");
+    this.menuList.setAttribute("aria-activedescendant", "");
+    this.menuList.style.display = "none";
+    this.menuButton.focus();
+  }
+
+  isOpen() {
+    return this.menuButton.getAttribute("aria-expanded") === "true";
+  }
+
+  toggle() {
+    if (this.isOpen()) {
+      this.close();
+    } else {
+      this.open();
+    }
+  }
+
+  // NOTE: preventDefault cancelled in onMenuListKeydown, this may not be wanted later on
+  activate(e) {
+    let itemToActivate;
+    if (e && e.target) {
+      itemToActivate = e.target;
+    } else {
+      itemToActivate = this.menuListItems[this.menuListActiveIndex].querySelector('.action');
+    }
+    itemToActivate.click();
+    this.close();
+  }
+
+  onMenuButtonKey(e) {
+    const key = e.key;
+
+    switch(key) {
+      case " ":
+      case "Enter":
+      case "ArrowDown":
+      case "Down":
+        this.open();
+        break;
+      case "Up":
+      case "ArrowUp":
+        this.open();
+        break;
+      case "Esc":
+      case "Escape":
+        this.close();
+    }
+
+    e.stopPropagation();
+    e.preventDefault();
+  }
+
+  // TODO: could also add character search on menu list in future
+  onMenuListKeydown(e) {
+    const key = e.key;
+
+    if (e.ctrlKey || e.altKey || e.metaKey) {
+      return;
+    }
+
+    if (key === "Tab") {
+      this.close();
+      return;
+    }
+
+    switch (key) {
+      case " ":
+      case 'Enter':
+        this.close();
+        this.activate();
+        break;
+      case "Esc":
+      case "Escape":
+        this.close();
+        break;
+      case "Up":
+      case "ArrowUp":
+        this.focusPrev();
+        break;
+      case "ArrowDown":
+      case "Down":
+        this.focusNext();
+        break;
+      case "Home":
+      case "PageUp":
+        this.focusFirst();
+        break;
+      case "End":
+      case "PageDown":
+        this.focusLast();
+    }
+
+    e.stopPropagation();
+    e.preventDefault();
+  }
+
+  onMenuListClick(e) {
+    this.activate(e.target);
+  }
+
+  onMenuListOver(e) {
+    const menuItemTarget = e.target;
+    if (menuItemTarget.nodeName === "LI") {
+      let index = 0;
+      Array.from(this.menuListItems).forEach((item, i) => {
+        if (item === menuItemTarget) {
+          index = i;
+        }
+      });
+      this.setFocus(menuItemTarget, index);
+    }
+  }
+}
+
+
+
+document.addEventListener("DOMContentLoaded", function() {
+  const menuButton = document.querySelector("#button-1");
+  const menuList = document.querySelector("#menu-1");
+  const menuDropdown = new MenuDropdown();
+  menuDropdown.init({menuButton, menuList});
+});
+
+</script>
+</head>
+<body>
+<h1>Menu</h1>
+
+<!--
+  REMEMBER: 
+  
+  added  class="action" to LI ANCHOR
+-->
+<div class="menu">
+  <button type="button" id="button-1" aria-haspopup="true" aria-controls="menu-1">More</button>
+  <ul id="menu-1" role="menu" tabindex="-1" aria-labelledby="button-1" aria-activedescendant="mi-1-0">
+    <li id="mi-1-0" role="menuitem"><a href="#TODO-Edit" class="action">Edit</a></li>
+    <li id="mi-1-1" role="menuitem"><a href="#TODO-Copy" class="action">Copy link</a></li>
+    <li id="mi-1-2" role="menuitem"><a href="#TODO-Preview" class="action">Preview</a></li>
+    <li id="mi-1-3" role="menuitem"><a href="#TODO-Save" class="action">Save</a></li>
+  </ul>
+</div>
+
+
+</body>
+</html>
