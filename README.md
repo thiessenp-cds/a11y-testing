@@ -4,7 +4,7 @@ Provide base cases for testing html accessibility practices. As a result librari
 
 Run the http server with: `npm run dev`
 
-## Tests
+## Automated Testsß
 
 Run the below tests using the automated test tool Cypress by running the below command:
 ```
