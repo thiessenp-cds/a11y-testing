@@ -1,6 +1,6 @@
 
 # a11y
-Mainly prototypes and testing.
+Provide base cases for testing html accessibility practices. As a result libraries will be avoided when possible.
 
 Run the http server with: `npm run dev`
 
