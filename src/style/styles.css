@@ -24,6 +24,11 @@
   margin: 0 0 1rem 0;
 }
 
+.quirk-heading {
+  margin-top: 3rem;
+  font-size: 1.2rem;
+}
+
 .quirk {
   border-left:  solid .5rem #b20f1e;
   background-color: #fff2f2;
