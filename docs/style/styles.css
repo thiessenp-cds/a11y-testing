@@ -36,6 +36,21 @@
   margin: .5rem 0;
 }
 
+footer {
+  margin-top: 4rem;
+  padding: 1rem;
+  background-color: #f5f8fe;
+  border-top: 1px dashed #d2d5db;
+}
 
 
-/*  */
+/*  Taken from: https://css-tricks.com/inclusively-hidden/ */
+.sr-only:not(:focus):not(:active) {
+  clip: rect(0 0 0 0); 
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap; 
+  width: 1px;
+}

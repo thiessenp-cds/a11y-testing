@@ -6,7 +6,7 @@
     "cypress": "cypress open",
     "cypress:run": "CYPRESS_DEBUG=true cypress run --browser chrome",
     "cypress:e2e": "cypress run --browser chrome --e2e",
-    "dev": "http-server ./src -p 80"
+    "dev": "http-server ./docs -p 80"
   },
   "author": "",
   "license": "ISC",

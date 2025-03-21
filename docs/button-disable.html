@@ -12,38 +12,36 @@
     </header>
     <main>
       <h2>Description</h2>
-
-      <p>Disabling a button should communicate that change but there is no contrast requirement for the disabled state.</p>
-        
+      <p>Disabling a button should be communicated to the user. There is no contrast requirement for the button in disabled state.</p>
       <div class="sc-list">
         WCAG SC:
         <ul><li>TODO</li></ul>
       </div>
-
       <h2>Example</h2>
       <div class="example">
         <div>
-          <p>Native button disabled using the "disabled" and "aria-disabled" attributes</p>
+          <p>The native button bellow when clicked will dynamically become disabled by dynamically updating the "disabled" and "aria-disabled" attributes on the button.</p>
           <label>Click to <button id="test_disable_enable_trigger1" type="button">Disable/enable</button></label>
           <label>Test button with state <button id="test_disable_enable_button_output1" type="button" aria-disabled="false">Enabled</button></label>
         </div>
-
       </div>
-      </div>
-
       <h2 class="quirk-heading">Quirks</h2>
       <div class="quirk">
-        <p>A quirk is that disabling a button (using JS) is not announced to AT. So a live-region test is also included.</p>
-
+        <p>Dynamically disabling a button (using JS) is not announced to AT.</p>
+        <p>To fix this use a live-region to announce the change. The below example uses a live region to announce the "Button disabled/enabled" when the button state changes.</p>
         <div class="example">
-          <p>Same as above but with a live region that announces the disabled/enabled change</p>
           <label>Click to <button id="test_disable_enable_trigger2" type="button">Disable/enable</button></label>
           <label>Test button with state <button id="test_disable_enable_button_output2">Enabled</button></label>
-          <span id="test_disable_enable_button_live2" aria-live="assertive"></span>
+          <span id="test_disable_enable_button_live2" class="sr-only" aria-live="assertive"></span>
         </div>
-
       </div>
     </main>
+    <footer>
+      Change log
+      <ul>
+        <li>(DATE TODO): Initial version</li>
+      </ul>
+    </footer>
 
     <script>
       function testTrigger1() {
