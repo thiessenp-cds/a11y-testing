@@ -8,51 +8,44 @@
   </head>
   <body>
     <header>
-      <h1>Buttons</h1>
+      <h1>Disabling a Button (avoid)</h1>
     </header>
     <main>
 
-<!-- @Todo: Example of a Submit button should not be disabled, only appear disabled - see post about it -->
+      <h2>Description</h2>
 
-<!--
-<h2>What am I testing?</h2>
-<p>Describe what you are testing</p>
+      <p>Disabling a button should communicate that change but there is no contrast requirement for the disabled state.</p>
+        
+      <div class="sc-list">
+        WCAG SC:
+        <ul><li>TODO</li></ul>
+      </div>
 
-<div class="sc-list">
-  WCAG SC:
-  <ul><li>TODO</li></ul>
-</div>
+      <h2>Example</h2>
+      <div class="example">
+        <div>
+          <p>Native button disabled using the "disabled" and "aria-disabled" attributes</p>
+          <label>Click to <button id="test_disable_enable_trigger1" type="button">Disable/enable</button></label>
+          <label>Test button with state <button id="test_disable_enable_button_output1" type="button" aria-disabled="false">Enabled</button></label>
+        </div>
 
-<div class=demo>
-Live-code or link
-</div>
--->
+      </div>
+      </div>
+
+      <h2>Quirks</h2>
+      <div class="quirk">
 
 
-      <div class="test-item">
-        <h2>Disabling a Button</h2>
-        <p>Disabling a button should communicate that change but there is no contrast requirement for the disabled state.</p>
         <p>A quirk is that disabling a button (using JS) is not announced to AT. So a live-region test is also included.</p>
 
-        <div class="sc-list">
-          WCAG SC:
-          <ul><li>TODO</li></ul>
+        <div class="example">
+          <p>Same as above but with a live region that announces the disabled/enabled change</p>
+          <label>Click to <button id="test_disable_enable_trigger2" type="button">Disable/enable</button></label>
+          <label>Test button with state <button id="test_disable_enable_button_output2">Enabled</button></label>
+<!-- @TODO class to hide for visual -->
+          <span id="test_disable_enable_button_live2" aria-live="assertive"></span>
         </div>
 
-        <div class="demo">
-          <div>
-            <p>Native button disabled using the "disabled" and "aria-disabled" attributes</p>
-            <label>Click to <button id="test_disable_enable_trigger1" type="button">Disable/enable</button></label>
-            <label>Test button with state <button id="test_disable_enable_button_output1" type="button" aria-disabled="false">Enabled</button></label>
-          </div>
-          <div>
-            <p>Same as above but with a live region that announces the disabled/enabled change</p>
-            <label>Click to <button id="test_disable_enable_trigger2" type="button">Disable/enable</button></label>
-            <label>Test button with state <button id="test_disable_enable_button_output2">Enabled</button></label>
-<!-- @TODO class to hide for visual -->
-            <span id="test_disable_enable_button_live2" aria-live="assertive"></span>
-          </div>
-        </div>
       </div>
     </main>
 

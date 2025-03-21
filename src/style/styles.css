@@ -1,21 +1,36 @@
 
-.test-item{
-  margin: 1rem 0 1rem 0;
-  padding-bottom: 1rem;
-  border-bottom: 3px dashed #aaa;
+
+.sc-list {
+  border-left:  solid .5rem #00713c;
+  background-color: #edfdf6;
+  padding: .75rem;
+  display: inline-block;
 }
 
 .sc-list ul {
   list-style-type: none;
   padding: 0;
+  margin: 0;
   display: inline-block;
 }
 
+.example {
+  padding:1rem;
+  background-color: #f3f4f6;
+  border:1px solid #d2d5db;
+}
 
-.demo {
+.example p {
+  margin: 0 0 1rem 0;
+}
+
+.quirk {
+  border-left:  solid .5rem #b20f1e;
+  background-color: #fff2f2;
   padding:1rem;
   margin: .5rem 0;
-  background-color: bisque;
 }
 
 
+
+/*  */
