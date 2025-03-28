@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+      <meta charset="utf-8" />
+      <title>Buttons</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" href="style/styles.css">
+  </head>
+  <body>
+    <header>
+      <h1>Disabling a Button Dynamically (avoid)</h1>
+    </header>
+    <main>
+      <h2>Description</h2>
+      <p>Disabling a button dynamically should be communicated to the user. There is no contrast requirement for the button in disabled state.</p>
+      <div class="sc-list">
+        WCAG SC:
+        <ul><li>TODO</li></ul>
+      </div>
+
+      <h2>Example</h2>
+      <div class="example">
+        <div>
+          <p>The native button bellow when clicked will become disabled by dynamically updating the "disabled" attribute on the button.</p>
+          <p><label for="test_disable_enable_trigger1">Disable/enable below button</label> <button id="test_disable_enable_trigger1" type="button">Disable/enable</button></p>
+          <label>Test button with state <button id="test_disable_enable_button_output1" type="button" aria-disabled="false">Enabled</button></label>
+        </div>
+      </div>
+
+
+      <h2 class="mt-4">Quirks</h2>
+      <div class="quirks warning-container">
+        <h3>Dynamically disabling a button (using JS) is not announced to AT.</h3>
+        <p>To fix this use a live-region to announce the change. The below example is a copy of the above but also uses a live region to announce the "Button disabled/enabled" when the button state changes.</p>
+        <div class="example">
+          <p><label for="test_disable_enable_trigger2">Disable/enable below button</label> <button id="test_disable_enable_trigger2" type="button">Disable/enable</button></p>
+          <label>Test button with state <button id="test_disable_enable_button_output2">Enabled</button></label>
+          <span id="test_disable_enable_button_live2" class="sr-only" aria-live="assertive"></span>
+        </div>
+      </div>
+
+      <div class="quirks warning-container">
+        <h3>Dynamically disabling a button (using JS) makes it "dissapear" from the page.</h3>
+        <p>The issues is that there was a button in the page but now it's "dissapeared" from AT. A first thought on a workaround might be to add a tabindex=0 to the button (don't add tabindex's to form controls) but this won't work. A browser will just ignore a disabled button regardless.</p>
+        <!-- <div class="example">
+          <p><label for="test_disable_enable_trigger3">Disable/enable below button</label> <button id="test_disable_enable_trigger3" type="button">Disable/enable</button></p>
+          <label>Test button with state <button id="test_disable_enable_button_output3" tabindex="0">Enabled</button></label>
+          <span id="test_disable_enable_button_live3" class="sr-only" aria-live="assertive"></span>
+        </div> -->
+      </div>
+
+
+      <h2>Notes</h2>
+      <ul>
+        <li>only the "disabled" attribute is needed. "aria-disabled" is meant for custom "buttons" not native ones</li>
+      </ul>
+
+    </main>
+    <footer>
+      Change log
+      <ul>
+        <li>(DATE TODO): Initial version</li>
+      </ul>
+    </footer>
+
+    <script>
+      function testTrigger1() {
+        const buttonOutput = document.getElementById("test_disable_enable_button_output1");
+        document.getElementById("test_disable_enable_trigger1").addEventListener("click", function(e) {
+          if (buttonOutput.disabled) {
+            buttonOutput.disabled = false;
+            // buttonOutput.ariaDisabled = false;
+            buttonOutput.textContent =  "Enabled";
+          } else {
+            buttonOutput.disabled = true;
+            // buttonOutput.ariaDisabled = true;
+            buttonOutput.textContent = "Disabled"
+          }
+        })
+      }
+
+      function testTrigger2() {
+        const buttonOutput = document.getElementById("test_disable_enable_button_output2");
+        const liveOutput = document.getElementById("test_disable_enable_button_live2");
+        document.getElementById("test_disable_enable_trigger2").addEventListener("click", function(e) {
+          if (buttonOutput.disabled) {
+            buttonOutput.disabled = false;
+            // buttonOutput.ariaDisabled = false;
+            buttonOutput.textContent = "Enabled"
+            liveOutput.textContent =  "Button Enabled";
+          } else {
+            buttonOutput.disabled = true;
+            // buttonOutput.ariaDisabled = true;
+            buttonOutput.textContent = "Disabled"
+            liveOutput.textContent =  "Button Disabled";
+          }
+        })
+      }
+
+      // function testTrigger3() {
+      //   const buttonOutput = document.getElementById("test_disable_enable_button_output3");
+      //   const liveOutput = document.getElementById("test_disable_enable_button_live3");
+      //   document.getElementById("test_disable_enable_trigger3").addEventListener("click", function(e) {
+      //     if (buttonOutput.disabled) {
+      //       buttonOutput.disabled = false;
+      //       // buttonOutput.ariaDisabled = false;
+      //       buttonOutput.textContent = "Enabled"
+      //       liveOutput.textContent =  "Button Enabled";
+      //     } else {
+      //       buttonOutput.disabled = true;
+      //       // buttonOutput.ariaDisabled = true;
+      //       buttonOutput.textContent = "Disabled"
+      //       liveOutput.textContent =  "Button Disabled";
+      //     }
+      //   })
+      // }
+
+      document.addEventListener("DOMContentLoaded", function() {
+        testTrigger1();
+        testTrigger2();
+        // testTrigger3();
+      })
+    </script>
+  </body>
+</html>
