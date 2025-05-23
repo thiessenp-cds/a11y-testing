@@ -63,7 +63,7 @@ footer {
 
 
 /*  Taken from: https://css-tricks.com/inclusively-hidden/ */
-.sr-only:not(:focus):not(:active) {
+/* .sr-only:not(:focus):not(:active) {
   clip: rect(0 0 0 0); 
   clip-path: inset(50%);
   height: 1px;
@@ -71,4 +71,17 @@ footer {
   position: absolute;
   white-space: nowrap; 
   width: 1px;
+} */
+
+/* Taken from Tailwind CSS */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
